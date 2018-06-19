@@ -20,13 +20,23 @@ import grpc
 import helloworld_pb2
 import helloworld_pb2_grpc
 
+def run(round_robin=False):
+    if round_robin:
+        opts = [("grpc.lb_policy_name", "round_robin",)]
+        channel = grpc.insecure_channel('localhost:50051' , opts)
+    else:
+        channel = grpc.insecure_channel('localhost:50051')
 
-def run():
-    channel = grpc.insecure_channel('localhost:50051')
+    print ("Connection OK")
     stub = helloworld_pb2_grpc.GreeterStub(channel)
     response = stub.SayHello(helloworld_pb2.HelloRequest(name='you'))
     print("Greeter client received: " + response.message)
 
 
 if __name__ == '__main__':
-    run()
+    print("========= without options ========")
+    for _ in range (10):
+        run()
+    print("========  with round robin =======")
+    for _ in range (10):
+        run(True)
